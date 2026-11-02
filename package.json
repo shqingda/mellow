@@ -1,0 +1,24 @@
+{
+  "name": "mellow",
+  "description": "Softens glaring white text on dark pages, for eyes with astigmatism.",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "build": "wxt build",
+    "zip": "wxt zip",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2",
+    "vite": "8.3.5",
+    "vitest": "5.0.5",
+    "wxt": "0.21.5"
+  },
+  "dependencies": {
+    "preact": "11.0.2"
+  }
+}

@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Mellow" },
+  "extDescription": { "message": "Softens glaring white text on dark pages; backgrounds, images and icons stay as they are." },
+  "toggleSite": { "message": "Turn Mellow on or off for this site" }
+}

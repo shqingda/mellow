@@ -1,0 +1,5 @@
+{
+  "extName": { "message": "Mellow" },
+  "extDescription": { "message": "只柔化深色网页上刺眼的白字，背景、图片和图标保持原样。" },
+  "toggleSite": { "message": "在当前网站开启或关闭 Mellow" }
+}
