@@ -53,8 +53,16 @@ export function markTree(root: Element) {
  */
 export function watchAdded(): MutationObserver {
   const added = new Set<Element>();
+  // An element under another added one is covered by that one's walk;
+  // walking it too would go over its subtree again, once for each added
+  // element above it.
   const markAdded = () => {
-    for (const el of added) if (el.isConnected) markTree(el);
+    for (const el of added) {
+      if (!el.isConnected) continue;
+      let p = el.parentElement;
+      while (p && !added.has(p)) p = p.parentElement;
+      if (!p) markTree(el);
+    }
     added.clear();
   };
   const mo = new MutationObserver((records) => {
