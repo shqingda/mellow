@@ -46,7 +46,7 @@ describe('GitHub dark', () => {
     const muted = hexToOklch(mapHex('#9198a1', DEFAULTS));
     // Claude Code docs' body #9e9e9e is L 0.70; GitHub's text starts at 0.97.
     expect(text.l).toBeLessThan(0.86);
-    expect(text.l).toBeGreaterThan(0.72);
+    expect(text.l).toBeGreaterThan(0.76);
     // Secondary text barely moves...
     expect(hexToOklch('#9198a1').l - muted.l).toBeLessThan(0.02);
     // ...and stays clearly apart.
@@ -89,11 +89,42 @@ describe('whiteFor', () => {
   });
 });
 
-describe('the background', () => {
-  const on = (hex: string, bgHex: string) => {
-    const params = { ...DEFAULTS, white: autoWhite(hexToOklch(bgHex).l, DEFAULTS) };
-    return Math.round(hexToOklch(mapHex(hex, params)).l * 100);
+/**
+ * APCA 0.0.98G-4g's contrast of light text on a dark background, as Lc,
+ * straight from the sRGB values: a check on curve.ts's own solving of it.
+ */
+function apca(textHex: string, bgHex: string): number {
+  const y = (hex: string) => {
+    const n = Number.parseInt(hex.slice(1), 16);
+    const [r, g, b] = [n >> 16, n >> 8, n].map((v) => ((v & 255) / 255) ** 2.4);
+    const lum = 0.2126729 * r + 0.7151522 * g + 0.072175 * b;
+    return lum < 0.022 ? lum + (0.022 - lum) ** 1.414 : lum;
   };
+  return ((y(textHex) ** 0.62 - y(bgHex) ** 0.65) * 1.14 - 0.027) * 100;
+}
+
+describe('apca', () => {
+  it('matches APCA’s published values', () => {
+    expect(apca('#ffffff', '#000000')).toBeCloseTo(107.88, 1);
+    expect(apca('#ffffff', '#888888')).toBeCloseTo(68.54, 1);
+  });
+});
+
+describe('the background', () => {
+  const mapped = (hex: string, bgHex: string) => {
+    const params = { ...DEFAULTS, white: autoWhite(hexToOklch(bgHex).l, DEFAULTS) };
+    return mapHex(hex, params);
+  };
+  const on = (hex: string, bgHex: string) => Math.round(hexToOklch(mapped(hex, bgHex)).l * 100);
+
+  it('brings bright text to Lc 68, between APCA’s minimums for other text and body text', () => {
+    for (const bg of ['#000000', '#0d1117', '#121212', '#15202b', '#1e1e1e', '#282c34', '#333333']) {
+      // #e8e8e8 is L 0.93, the bright text the ceiling is set for.
+      expect(Math.abs(apca(mapped('#e8e8e8', bg), bg) - 68)).toBeLessThan(1);
+      // White stays a little above, where on black it would be Lc 108.
+      expect(apca(mapped('#ffffff', bg), bg)).toBeLessThan(75);
+    }
+  });
 
   it('brings bright text down more the darker it is', () => {
     let prev = 0;
@@ -101,9 +132,9 @@ describe('the background', () => {
       expect(ceiling(bg)).toBeGreaterThanOrEqual(prev);
       prev = ceiling(bg);
     }
-    expect(on('#e7e9ea', '#000000')).toBe(77);
-    expect(on('#f0f6fc', '#0d1117')).toBe(78);
-    expect(on('#f0f6fc', '#0d1117')).toBeGreaterThan(on('#f0f6fc', '#000000'));
+    expect(on('#e7e9ea', '#000000')).toBe(81);
+    expect(on('#f0f6fc', '#0d1117')).toBe(82);
+    expect(on('#f0f6fc', '#15202b')).toBeGreaterThan(on('#f0f6fc', '#000000'));
   });
 
   it('barely touches text below the ceiling', () => {

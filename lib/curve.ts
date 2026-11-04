@@ -11,7 +11,7 @@
 // The same parameters go into the CSS expression below and into the
 // functions here, which the popup's preview and the tests use.
 
-import { hexToOklch, oklchToHex } from './color';
+import { fromLinear, hexToOklch, oklchToHex, toLinear } from './color';
 
 export interface CurveParams {
   /** Lightness where softening starts, 0.4–0.85. */
@@ -70,23 +70,57 @@ export function whiteFor(l: number, c: number, y: number, params: CurveParams): 
   return knee + (1 - knee) / (1 + b * (1 - knee));
 }
 
-// How bright text may be on a background before it glares. What the eye
-// minds is contrast: text against the background, with the light every
-// screen and eye scatters added to both. Text up to the ceiling is left as
-// it is; text above it is brought down to about it. A darker background
-// lowers the ceiling, as white glares most on black.
+// How bright text may be on a background. Two things pull against each
+// other. Light text on a dark page glares because the eye spreads it:
+// astigmatism, the eye's other aberrations and the light scattered inside
+// it blur each stroke into the dark around it, the more so through the
+// wide pupil a dark page leaves. The halo is a share of the text's own
+// light, so it fades as text dims. But dim text costs contrast, and text
+// with too little of it is read by squinting and refocusing, which tires
+// the eye as much.
+//
+// The ceiling is a contrast as APCA rates it: the perceptual contrast
+// model drafted for WCAG 3, fitted to reading on screens. It rates light
+// text on dark apart from dark text on light, and its soft clamp near
+// black stands for the flare of screen and room, which keeps a near-black
+// background from asking for ever dimmer text. Bright text is brought to
+// Lc 68, between APCA's minimums for text other than body text, Lc 60,
+// and for body text, Lc 75. APCA sets those for readers at large and
+// leaves halos out, which put the comfortable level lower for eyes that
+// see them: on trial, Lc 62 read a little dim and Lc 75 a little bright.
+// White on black is Lc 108. A lighter background raises the ceiling, as
+// it leaves less contrast and less glare.
 
-/** The light scattered over both, as a luminance. */
-const FLARE = 0.3;
-/** The contrast, with the flare, above which text starts to glare. */
-const COMFORT_RATIO = 2.49;
+/** The APCA contrast bright text is brought to. */
+const COMFORT_LC = 68;
 /** Bright text as pages use it, which the ceiling is set for. */
 const BRIGHT_TEXT = 0.93;
 
-/** The highest comfortable text lightness on a background of lightness bg. */
+// APCA 0.0.98G-4g's constants for light text on a dark background.
+const BLACK_THRESHOLD = 0.022;
+const BLACK_CLAMP = 1.414;
+const BG_EXP = 0.65;
+const TEXT_EXP = 0.62;
+const SCALE = 1.14;
+const OFFSET = 0.027;
+
+/**
+ * The luminance APCA takes for a gray of lightness l: its sRGB value
+ * raised to 2.4, as screens show it, with darks lifted by the flare.
+ */
+function apcaY(l: number): number {
+  const y = fromLinear(l ** 3) ** 2.4;
+  return y < BLACK_THRESHOLD ? y + (BLACK_THRESHOLD - y) ** BLACK_CLAMP : y;
+}
+
+/**
+ * The highest comfortable text lightness on a background of lightness bg:
+ * APCA solved for the text. The text's luminance is always well above the
+ * flare clamp, so only the background's needs it.
+ */
 export function ceiling(bg: number): number {
-  const y = Math.min(1, COMFORT_RATIO * (bg ** 3 + FLARE) - FLARE);
-  return Math.cbrt(y);
+  const t = (apcaY(bg) ** BG_EXP + (COMFORT_LC / 100 + OFFSET) / SCALE) ** (1 / TEXT_EXP);
+  return t >= 1 ? 1 : Math.cbrt(toLinear(t ** (1 / 2.4)));
 }
 
 /** The white that brings bright text to the ceiling of background bg. */

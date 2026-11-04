@@ -19,8 +19,9 @@ export const DEFAULTS: Settings = {
   // White text comes down most and the brighter grays some, while gray
   // text, as Claude Code docs' #9e9e9e or GitHub's #9198a1, barely moves.
   knee: 0.65,
-  // Only until the page's background is known, which then sets it.
-  white: 0.84,
+  // Only until the page's background is known, which then sets it: about
+  // what a near-black one does, so the first paint does not jump.
+  white: 0.825,
   color: 0.5,
   sites: {},
   whites: {},

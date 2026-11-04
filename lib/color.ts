@@ -3,8 +3,10 @@
 
 export type OKLCH = { l: number; c: number; h: number };
 
-const toLinear = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
-const fromLinear = (v: number) => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
+/** An sRGB component, 0–1, as linear light. */
+export const toLinear = (v: number) => (v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+/** Linear light as an sRGB component, 0–1. */
+export const fromLinear = (v: number) => (v <= 0.0031308 ? 12.92 * v : 1.055 * v ** (1 / 2.4) - 0.055);
 
 /** OKLCH of an sRGB color of 0–255 components. */
 export function rgbToOklch(r8: number, g8: number, b8: number): OKLCH {

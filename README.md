@@ -8,7 +8,7 @@ It is intended for readers, in particular those with astigmatism, who see halos 
 
 - Text lightness is adjusted in OKLCH. Hue and chroma are preserved.
 - Lightness above a threshold is compressed with a monotonic soft-knee curve, `L' = K + d / (1 + B·d)` where `d = L − K`. Brighter text is lowered more, and the order of lightness between texts is preserved.
-- The upper limit for text lightness is derived from the page background: the darker the background, the lower the limit.
+- The upper limit for text lightness is derived from the page background: bright text is brought to APCA contrast Lc 68, instead of the Lc 100–108 of white on a dark background. This lies between the minimums APCA recommends for non-body text (Lc 60) and body text (Lc 75). APCA does not account for halos, so the comfortable level for readers who see them is lower; in trials, Lc 62 was slightly too dim and Lc 75 slightly too bright. The darker the background, the lower the limit.
 - Only pages detected as dark are affected. Detection samples the painted background at 25 points in the viewport.
 - Colored text, such as links and syntax highlighting, is adjusted less than gray text.
 - Text on colored or light backgrounds, such as buttons and notifications, keeps its original color.
