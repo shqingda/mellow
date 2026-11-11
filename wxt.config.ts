@@ -2,9 +2,11 @@ import { defineConfig } from 'wxt';
 
 export default defineConfig({
   imports: false,
-  // Preact renders the popup: a tenth of React's size, so it opens sooner.
+  // Only the popup loads React; content scripts stay framework-free.
   vite: () => ({
-    oxc: { jsx: { runtime: 'automatic', importSource: 'preact' } },
+    oxc: { jsx: { runtime: 'automatic', importSource: 'react' } },
+    // Browsers supporting Mellow's relative colors already support modulepreload.
+    build: { modulePreload: { polyfill: false } },
   }),
   manifest: {
     name: '__MSG_extName__',

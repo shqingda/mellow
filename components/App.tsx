@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'preact/hooks';
+import { type CSSProperties, useEffect, useRef, useState } from 'react';
 import { browser } from 'wxt/browser';
-import { mapHex, mapLightness } from '@/lib/curve';
+import { cssVars, FILL, mapLightness } from '@/lib/curve';
 import { type LangSetting, resolveLang, type Strings, strings } from '@/lib/i18n';
 import {
   DEFAULTS,
@@ -77,10 +77,16 @@ export function App() {
   useEffect(() => {
     loadSettings().then(setSettings);
     refreshPage();
-    return watchSettings(() => {
-      // The page's state follows the settings; ask again once it has.
-      setTimeout(refreshPage, 50);
+    let refresh: ReturnType<typeof setTimeout>;
+    const unwatch = watchSettings(() => {
+      // Scanning the page's text can wait until the slider pauses.
+      clearTimeout(refresh);
+      refresh = setTimeout(refreshPage, 50);
     });
+    return () => {
+      clearTimeout(refresh);
+      unwatch();
+    };
   }, []);
 
   if (!settings) return null;
@@ -146,7 +152,10 @@ export function App() {
 
       <section className={`site ${settings.enabled ? '' : 'dim'}`}>
         <div className="row">
-          <strong className="host">{host || t.thisPage}</strong>
+          <div className="site-name">
+            <span className="eyebrow">{t.thisSite}</span>
+            <strong className="host" title={host}>{host || t.thisPage}</strong>
+          </div>
           <span className={`badge ${state?.active ? 'on' : ''}`}>{status}</span>
         </div>
         {page?.stale && (
@@ -172,18 +181,22 @@ export function App() {
             ))}
           </div>
         )}
-        {mode === 'auto' && host && <p className="muted small">{t.autoHint}</p>}
+        {mode === 'auto' && host && <p className="muted small auto-hint">{t.autoHint}</p>}
       </section>
 
-      <section className="preview" aria-label={t.preview}>
-        <div className="preview-head muted small">
+      <section
+        className="preview"
+        aria-label={t.preview}
+        style={{ ...cssVars(params), '--mlw-on': settings.enabled ? 1 : 0 } as CSSProperties}
+      >
+        <div className="preview-head">
           <span>{t.before}</span>
           <span>{t.after}</span>
         </div>
         {SAMPLES.map((s) => (
-          <div className="sample" key={s.hex}>
+          <div className={`sample sample-${s.label}`} key={s.hex}>
             <span style={{ color: s.hex }}>{t[s.label]}</span>
-            <span style={{ color: settings.enabled ? mapHex(s.hex, params) : s.hex }}>{t[s.label]}</span>
+            <span style={{ color: s.hex, WebkitTextFillColor: FILL }}>{t[s.label]}</span>
           </div>
         ))}
       </section>
@@ -191,11 +204,7 @@ export function App() {
       <section className="controls">
         <div className="row">
           <h2>{t.adjust}</h2>
-          <button
-            className="link"
-            disabled={isDefault}
-            onClick={reset}
-          >
+          <button className="link" disabled={isDefault} onClick={reset}>
             {t.reset}
           </button>
         </div>
@@ -207,90 +216,53 @@ export function App() {
           max={1}
           onChange={setWhite}
         />
-        <Slider
-          label={t.knee}
-          hint={t.kneeHint}
-          value={settings.knee}
-          min={0.45}
-          max={0.8}
-          onChange={(v) => set('knee', Math.min(v, params.white - 0.02))}
-        />
-        <Slider
-          label={t.color}
-          hint={t.colorHint}
-          value={settings.color}
-          min={0}
-          max={1}
-          onChange={(v) => set('color', v)}
-        />
+        <div className="secondary-controls">
+          <Slider
+            label={t.knee}
+            hint={t.kneeHint}
+            value={settings.knee}
+            min={0.45}
+            max={0.8}
+            onChange={(v) => set('knee', Math.min(v, params.white - 0.02))}
+          />
+          <Slider
+            label={t.color}
+            hint={t.colorHint}
+            value={settings.color}
+            min={0}
+            max={1}
+            onChange={(v) => set('color', v)}
+          />
+        </div>
       </section>
 
-      <section className="prefs">
-        <Choice
-          label={t.language}
-          value={settings.lang}
-          options={LANGS.map((l) => ({ value: l.value, label: l.label(t) }))}
-          onChange={(lang) => change({ ...settings, lang })}
-        />
-      </section>
-
-      <footer className="muted small">
-        <kbd>⌥</kbd>
-        <kbd>⇧</kbd>
-        <kbd>M</kbd> {t.shortcut}
+      <footer>
+        <label className="prefs">
+          <span>{t.language}</span>
+          <select
+            value={settings.lang}
+            onChange={(e) => change({ ...settings, lang: e.currentTarget.value as LangSetting })}
+          >
+            {LANGS.map((l) => <option key={l.value} value={l.value}>{l.label(t)}</option>)}
+          </select>
+        </label>
+        <span className="shortcut" title={t.shortcut} aria-label={t.shortcut}>
+          <kbd>{navigator.platform.includes('Mac') ? '⌥' : 'Alt'}</kbd>
+          <kbd>⇧</kbd>
+          <kbd>M</kbd>
+        </span>
       </footer>
     </main>
   );
 }
 
-/** The name, set in the system's rounded face beside the icon's disc. */
+/** Reuse the extension icon instead of building a second copy in React. */
 function Wordmark() {
   return (
     <h1 className="wordmark">
-      <svg viewBox="0 0 128 128" aria-hidden="true">
-        <defs>
-          <linearGradient id="wm-a" x1="0.2" y1="0" x2="0.8" y2="1">
-            <stop offset="0" stop-color="#ffcf8a" />
-            <stop offset="1" stop-color="#e5832a" />
-          </linearGradient>
-          <clipPath id="wm-c">
-            <circle cx="64" cy="64" r="58" />
-          </clipPath>
-        </defs>
-        <g clip-path="url(#wm-c)">
-          <rect width="128" height="128" fill="#f6e8d2" />
-          <path d="M-5 132 L50 77 C70 57 92 48 122 44 L140 44 L140 140 L-5 140 Z" fill="url(#wm-a)" />
-        </g>
-        <circle cx="64" cy="64" r="56" fill="none" stroke="#d9802c" stroke-width="8" />
-      </svg>
+      <img src="/icon/48.png" width="28" height="28" alt="" />
       <span>Mellow</span>
     </h1>
-  );
-}
-
-function Choice<T extends string>(props: {
-  label: string;
-  value: T;
-  options: { value: T; label: string }[];
-  onChange: (v: T) => void;
-}) {
-  return (
-    <div className="row choice">
-      <span className="muted small">{props.label}</span>
-      <div className="segmented small" role="radiogroup" aria-label={props.label}>
-        {props.options.map((o) => (
-          <button
-            key={o.value}
-            role="radio"
-            aria-checked={props.value === o.value}
-            className={props.value === o.value ? 'selected' : ''}
-            onClick={() => props.onChange(o.value)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-    </div>
   );
 }
 
@@ -317,7 +289,7 @@ function Slider(props: {
     <label className="slider">
       <div className="row">
         <span>{props.label}</span>
-        <span className="muted">{pct(props.shown ?? props.value)}</span>
+        <span className="slider-value">{pct(props.shown ?? props.value)}</span>
       </div>
       <input
         type="range"
@@ -325,8 +297,9 @@ function Slider(props: {
         max={props.max}
         step={0.01}
         value={props.value}
-        style={{ '--fill': `${fill}%` }}
-        onInput={(e) => props.onChange(Number(e.currentTarget.value))}
+        aria-label={props.label}
+        style={{ '--fill': `${fill}%` } as CSSProperties}
+        onChange={(e) => props.onChange(Number(e.currentTarget.value))}
       />
       {props.hint && <span className="muted small">{props.hint}</span>}
     </label>

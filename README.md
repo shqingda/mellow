@@ -54,7 +54,9 @@ pnpm test       # run tests
 pnpm typecheck  # type-check
 ```
 
-Built with TypeScript, [WXT](https://wxt.dev) and [Preact](https://preactjs.com).
+Built with TypeScript, [WXT](https://wxt.dev) and [React](https://react.dev).
+
+React is loaded only by the popup. Content scripts and the background worker stay framework-free, and slider settings are saved at most once per animation frame.
 
 | Path | Contents |
 |---|---|
