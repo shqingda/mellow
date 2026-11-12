@@ -260,7 +260,7 @@ export function App() {
 function Wordmark() {
   return (
     <h1 className="wordmark">
-      <img src="/icon/48.png" width="28" height="28" alt="" />
+      <img src="/icon/96.png" width="28" height="28" alt="" />
       <span>Mellow</span>
     </h1>
   );

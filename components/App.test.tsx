@@ -110,7 +110,7 @@ it('keeps switches, site modes, language and reset working with saved settings',
     whites: { 'other.com': 0.75 },
   });
   expect(container.querySelector('input')?.value).toBe('0.82');
-  expect(container.querySelector('.wordmark img')?.getAttribute('src')).toBe('/icon/48.png');
+  expect(container.querySelector('.wordmark img')?.getAttribute('src')).toBe('/icon/96.png');
 });
 
 it('updates preview curve parameters immediately and disables softening with the switch', async () => {
