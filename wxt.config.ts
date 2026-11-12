@@ -12,6 +12,8 @@ export default defineConfig({
     name: '__MSG_extName__',
     description: '__MSG_extDescription__',
     default_locale: 'en',
+    homepage_url: 'https://github.com/shqingda/mellow',
+    minimum_chrome_version: '119',
     permissions: ['storage', 'activeTab'],
     commands: {
       'toggle-site': {

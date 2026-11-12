@@ -1,6 +1,6 @@
 # Mellow
 
-A Chrome extension that lowers the lightness of bright text on dark pages. Backgrounds, images and icons are not changed.
+A Chrome extension that lowers the lightness of bright text on dark pages. Backgrounds and images are not changed; SVG icons that inherit the text color may soften with the text.
 
 It is intended for readers, in particular those with astigmatism, who see halos around white text on dark backgrounds.
 
@@ -25,7 +25,7 @@ pnpm build
 
 In `chrome://extensions`, enable Developer mode, choose **Load unpacked** and select `.output/chrome-mv3`.
 
-Requires a version of Chrome that supports CSS relative color syntax (`oklch(from currentColor …)`).
+Requires Chrome 119 or newer for [CSS relative color syntax](https://developer.chrome.com/blog/css-relative-color-syntax) (`oklch(from currentColor …)`).
 
 ## Usage
 
@@ -42,7 +42,9 @@ The popup provides:
 
 ## Privacy
 
-Mellow makes no network requests. Settings are stored locally with `chrome.storage.local`. The only permissions requested are `storage` and `activeTab`.
+Mellow makes no network requests and has no analytics. It processes page styles, text-node lengths and the current site's hostname locally to adjust brightness. Settings and per-site preferences are saved in `chrome.storage.local`, without browser-account sync. Page text is not stored or transmitted.
+
+The extension requests `storage` and `activeTab`, and declares a content script for `<all_urls>` so softening can run automatically on supported pages. See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
 
 ## Development
 
@@ -53,6 +55,16 @@ pnpm zip        # package for the Chrome Web Store
 pnpm test       # run tests
 pnpm typecheck  # type-check
 ```
+
+## Release
+
+Run `pnpm test`, `pnpm typecheck` and `pnpm zip`. The version in `package.json` becomes the extension version; version 1.0.0 produces `.output/mellow-1.0.0-chrome.zip`, ready to upload to the Chrome Web Store. To install it locally, extract the ZIP and load the extracted folder from `chrome://extensions`.
+
+[Chrome Web Store copy](store/README.md) includes English and Simplified Chinese descriptions, permission explanations, privacy disclosures, reviewer instructions and release notes. The public privacy policy is [PRIVACY.md](PRIVACY.md).
+
+The icon source is `assets/icon.svg`. The 128 px store export has 96 px artwork centered within 16 px transparent padding; the smaller toolbar and popup exports use less padding for legibility.
+
+## Project structure
 
 Built with TypeScript, [WXT](https://wxt.dev) and [React](https://react.dev).
 

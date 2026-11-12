@@ -1,8 +1,8 @@
 {
   "name": "mellow",
-  "description": "Softens glaring white text on dark pages, for eyes with astigmatism.",
+  "description": "Softens bright text on dark pages with per-site brightness controls.",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
