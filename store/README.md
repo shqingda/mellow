@@ -8,6 +8,8 @@
 | --- | --- |
 | 上传包 | `.output/mellow-1.0.0-chrome.zip`，运行 `pnpm zip` 生成 |
 | 商店图标 | `public/icon/128.png`，128 × 128，四边透明留白 16 px |
+| 英文功能截图 | [screenshots/en](screenshots/en)，5 张 1280 × 800 PNG |
+| 简体中文功能截图 | [screenshots/zh_CN](screenshots/zh_CN)，5 张 1280 × 800 PNG |
 | 项目主页 | https://github.com/shqingda/mellow |
 | 支持页面 | https://github.com/shqingda/mellow/issues |
 | 隐私政策 URL | https://github.com/shqingda/mellow/blob/main/PRIVACY.md |
@@ -229,15 +231,19 @@ Mellow 1.0.0 — 首个正式版本
 
 ## 截图配文
 
-截图尚需从实际运行的扩展中拍摄；下面是可搭配真实画面的中英文标题。准备至少一张 1280 × 800 截图，最多五张，也支持 640 × 400。宣传图可选，小图 440 × 280，大图 1400 × 560；具体格式见 [Google 图片规范](https://developer.chrome.com/docs/webstore/images)。Logo 设计预览不代替功能截图。
+中英文各 5 张功能截图已完成，全部为 1280 × 800 PNG，按文件编号顺序上传。截图取自 Mellow 1.0.0 在本地示例网页上的实际运行画面，配有标题排版，不包含个人浏览内容。
+
+Localized screenshots 对应后台顶部选中的语言；Global screenshots 是各语言共用的素材。可以将英文截图放入 Global，在简体中文页面的 Localized 上传中文截图。两组都提供时，本地化截图排在全局截图前面，英文 Localized 无需再重复同一套图片。显示顺序见 [Google 商店资料说明](https://developer.chrome.com/docs/webstore/cws-dashboard-listing#order_of_graphic_assets)。
+
+宣传图可选，小图 440 × 280，大图 1400 × 560；具体格式见 [Google 图片规范](https://developer.chrome.com/docs/webstore/images)。
 
 | 画面 | 中文标题 | English title |
 | --- | --- | --- |
 | 同一深色页面的开启前后对比 | 深色页面，文字柔和一点 | Dark pages. Softer text. |
-| 弹窗中的白字亮度滑块和网站名 | 每个网站，都有适合的亮度 | The right brightness for each site |
-| 网站模式和总开关 | 自动柔化，随时掌控 | Automatic when you want it |
-| 彩色文字调节和预览 | 让亮字和彩色文字各得其所 | Fine-tune bright and colored text |
-| 实际设置界面与隐私说明 | 设置留在本机 | Your preferences stay on your device |
+| 按网站保存白字亮度 | 每个网站，都有适合的亮度 | Your brightness. For each site. |
+| 自动识别深色与浅色页面 | 深色页面，自动柔化 | Dark pages only. Automatically. |
+| 彩色文字调节和预览 | 彩色文字，也能单独调节 | Fine-tune colored text. |
+| 明暗界面和中英文语言 | 明暗之间，使用自如 | At home in light and dark. |
 
 ## 上传顺序
 
